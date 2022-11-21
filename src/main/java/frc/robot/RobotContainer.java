@@ -325,10 +325,10 @@ public class RobotContainer {
     //left[2].whenPressed(new IntakeRetractAndFlush(intakeFront, uptake, feeder, log));
 
     // right joystick left button
-    right[1].whenPressed(new IntakeExtendAndTurnOnMotors(intakeFront, uptake, log)); 
+    right[1].onTrue(new IntakeExtendAndTurnOnMotors(intakeFront, uptake, log)); 
 
     // right joystick right button
-    right[2].whenPressed(new IntakeRetractAndFlush(intakeFront, uptake, feeder, log)); 
+    right[2].onTrue(new IntakeRetractAndFlush(intakeFront, uptake, feeder, log)); 
 
     // right[2].whileHeld(new DriveTurnGyro(TargetType.kVision, 0, 90, 100, true, 1, driveTrain, limelightFront, log)); // turn gyro with vision
  
@@ -354,34 +354,34 @@ public class RobotContainer {
     }
 
     // top row UP then DOWN, from LEFT to RIGHT
-    coP[1].whenPressed(new IntakeToColorSensor(intakeFront, uptake, log)); 
-    coP[2].whenPressed(new ShooterSetVelocity(InputMode.kSpeedRPM, ShooterConstants.shooterDefaultRPM, shooter, log)); 
+    coP[1].onTrue(new IntakeToColorSensor(intakeFront, uptake, log)); 
+    coP[2].onTrue(new ShooterSetVelocity(InputMode.kSpeedRPM, ShooterConstants.shooterDefaultRPM, shooter, log)); 
 
-    coP[3].whenPressed(new UptakeFeedBall(uptake, feeder, log)); 
-    coP[4].whenPressed(new UptakeEjectBall(uptake, log)); 
+    coP[3].onTrue(new UptakeFeedBall(uptake, feeder, log)); 
+    coP[4].onTrue(new UptakeEjectBall(uptake, log)); 
 
     // coP[5].whenHeld(new ClimbSetPercentOutput(0.4, climb, log)); // manually raise climb arms, slowly
     // coP[6].whenHeld(new ClimbSetPercentOutput(-0.4, climb, log)); // manually lower climb arms, slowly
     
     // top row RED SWITCH
-    coP[8].whenPressed(new StopAllMotors(feeder, shooter, intakeFront, uptake, log));
+    coP[8].onTrue(new StopAllMotors(feeder, shooter, intakeFront, uptake, log));
 
     // middle row UP then DOWN, from LEFT to RIGHT
-    coP[9].whenPressed(new IntakeSetPercentOutput(IntakeConstants.onPct, IntakeConstants.onPctTransfer, intakeFront, log)); // forward intake and transfer
-    coP[10].whenPressed(new IntakeSetPercentOutput(-IntakeConstants.onPct, -IntakeConstants.onPctTransfer, intakeFront, log)); // reverse intake and transfer
+    coP[9].onTrue(new IntakeSetPercentOutput(IntakeConstants.onPct, IntakeConstants.onPctTransfer, intakeFront, log)); // forward intake and transfer
+    coP[10].onTrue(new IntakeSetPercentOutput(-IntakeConstants.onPct, -IntakeConstants.onPctTransfer, intakeFront, log)); // reverse intake and transfer
 
-    coP[11].whenPressed(new UptakeSetPercentOutput(-UptakeConstants.onPct, 0, uptake, log)); // reverse uptake
-    coP[12].whenPressed(new UptakeSetPercentOutput(UptakeConstants.onPct, 0, uptake, log)); // forward uptake
+    coP[11].onTrue(new UptakeSetPercentOutput(-UptakeConstants.onPct, 0, uptake, log)); // reverse uptake
+    coP[12].onTrue(new UptakeSetPercentOutput(UptakeConstants.onPct, 0, uptake, log)); // forward uptake
 
-    coP[13].whenPressed(new FeederSetPercentOutput(-FeederConstants.onPct, feeder, log)); // reverse feeder
-    coP[14].whenPressed(new FeederSetPercentOutput(FeederConstants.onPct, feeder, log)); // forward feeder
+    coP[13].onTrue(new FeederSetPercentOutput(-FeederConstants.onPct, feeder, log)); // reverse feeder
+    coP[14].onTrue(new FeederSetPercentOutput(FeederConstants.onPct, feeder, log)); // forward feeder
 
     // middle row UP OR DOWN, fourth button
-    coP[7].whenPressed(new IntakePistonToggle(intakeFront, uptake, log)); 
+    coP[7].onTrue(new IntakePistonToggle(intakeFront, uptake, log)); 
 
     // bottom row UP then DOWN, from LEFT to RIGHT
-    coP[15].whenPressed(new ClimberSetExtended(true,climber, log)); // climb extend
-    coP[16].whenPressed(new ClimberSetExtended(false,climber, log)); // climb retract
+    coP[15].onTrue(new ClimberSetExtended(true,climber, log)); // climb extend
+    coP[16].onTrue(new ClimberSetExtended(false,climber, log)); // climb retract
   }
 
 
@@ -421,7 +421,7 @@ public class RobotContainer {
     // pivisionhub.setLEDState(true);
 
     //compressor.disable();
-    compressor.enabled();
+    compressor.isEnabled();
   }
 
   /**
