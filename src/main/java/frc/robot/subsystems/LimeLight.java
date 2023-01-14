@@ -52,7 +52,8 @@ public class LimeLight extends SubsystemBase implements Loggable {
     this.snapshotTimer = new Timer();
     snapshotTimer.reset();
     snapshotTimer.start();
-    tableInstance.startClientTeam(294);
+    tableInstance.startClient4("Limelight");
+    tableInstance.setServerTeam(294);
 
     tv = table.getEntry("tv");
     tx = table.getEntry("tx");

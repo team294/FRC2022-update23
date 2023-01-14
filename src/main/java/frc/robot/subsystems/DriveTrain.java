@@ -138,7 +138,7 @@ public class DriveTrain extends SubsystemBase {
     zeroGyroRotation();
 
     // Sets initial position to (0,0) facing 0 degrees
-    odometry = new DifferentialDriveOdometry(Rotation2d.fromDegrees(getGyroRotation()));
+    odometry = new DifferentialDriveOdometry(Rotation2d.fromDegrees(getGyroRotation()), 0, 0);
 
     // initialize angular velocity variables
     prevAng = getGyroRaw();
@@ -679,7 +679,7 @@ public class DriveTrain extends SubsystemBase {
     zeroLeftEncoder();
     zeroRightEncoder();
     zeroGyroRotation(robotPoseInMeters.getRotation().getDegrees());
-    odometry.resetPosition(robotPoseInMeters, Rotation2d.fromDegrees(getGyroRotation()));
+    odometry.resetPosition(Rotation2d.fromDegrees(getGyroRotation()), 0, 0, robotPoseInMeters);
   }
 
   /**

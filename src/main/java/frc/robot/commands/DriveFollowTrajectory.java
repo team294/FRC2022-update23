@@ -25,8 +25,6 @@ import edu.wpi.first.math.trajectory.Trajectory;
 import edu.wpi.first.math.trajectory.Trajectory.State;
 import edu.wpi.first.math.util.Units;
 
-import static edu.wpi.first.wpilibj.util.ErrorMessages.requireNonNullParam;
-
 /**
  * A command that uses a RAMSETE controller ({@link RamseteController}) to follow a trajectory
  * {@link Trajectory} with a differential drive.
@@ -99,7 +97,7 @@ public class DriveFollowTrajectory extends CommandBase {
   public DriveFollowTrajectory(CoordType trajectoryType, StopType stopAtEnd, Trajectory trajectory, boolean useRamsete, PIDType pidType, DriveTrain driveTrain, FileLog log) {
     m_trajectoryType = trajectoryType;
     m_stopAtEnd = stopAtEnd;
-    m_trajectory = requireNonNullParam(trajectory, "trajectory", "RamseteCommand");
+    m_trajectory = java.util.Objects.requireNonNull(trajectory, "trajectory");
     m_useRamsete = useRamsete;
     m_pidType = pidType;
     this.driveTrain = driveTrain;

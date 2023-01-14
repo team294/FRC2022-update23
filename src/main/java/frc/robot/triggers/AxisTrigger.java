@@ -35,7 +35,7 @@ public class AxisTrigger extends Trigger {
    * @return true if axis value is greater than min
    */
   @Override
-  public boolean get() {
+  public boolean getAsBoolean() {
       return joystick.getRawAxis(axis) > min;
   }
 }
