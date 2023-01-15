@@ -56,7 +56,7 @@ public class DriveWithJoystickArcade extends CommandBase {
   public void execute() {
     curTime = System.currentTimeMillis() / 1000.0;
     fwdPercent = -leftJoystick.getY();
-    turnPercent = rightJoystick.getX() * 0.5;
+    turnPercent = -rightJoystick.getX() * 0.5;
 
     if(log.getLogRotation() == log.DRIVE_CYCLE) {
       log.writeLog(false, "DriveWithJoystickArcade", "Joystick", "L Joystick", fwdPercent, "R Joystick", turnPercent);
