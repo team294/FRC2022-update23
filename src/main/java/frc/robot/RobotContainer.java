@@ -65,6 +65,7 @@ public class RobotContainer {
   private final Turret turret = new Turret(log);
   private final PiVisionHub pivisionhub = new PiVisionHub(powerdistribution, log); //Pi ip: 10.2.94.21S
   private final LimeLight limeLightFront = new LimeLight("limelight-front", log);
+  private final PhotonVision photon = new PhotonVision();
   // private final LimeLight limeLightRear = new LimeLight("limelight-rear", log);
 
   // Define final utilities
@@ -218,6 +219,8 @@ public class RobotContainer {
     SmartDashboard.putData("Drive Trajectory Relative", new DriveFollowTrajectory(CoordType.kRelative, StopType.kBrake, trajectoryCache.cache[TrajectoryType.test.value], false, PIDType.kTalon, driveTrain, log));
     SmartDashboard.putData("Drive Trajectory Curve Relative", new DriveFollowTrajectory(CoordType.kRelative, StopType.kBrake, trajectoryCache.cache[TrajectoryType.testCurve.value], false, PIDType.kTalon, driveTrain, log));
     SmartDashboard.putData("Drive Trajectory Absolute", new DriveFollowTrajectory(CoordType.kAbsolute, StopType.kBrake, trajectoryCache.cache[TrajectoryType.test.value], driveTrain, log));  
+
+    SmartDashboard.putData("Photon DriveToTarget", new DriveToTargetWithPhoton(driveTrain, photon, log));
   }
 
   /**
