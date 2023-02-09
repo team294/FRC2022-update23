@@ -65,7 +65,7 @@ public class RobotContainer {
   private final Turret turret = new Turret(log);
   private final PiVisionHub pivisionhub = new PiVisionHub(powerdistribution, log); //Pi ip: 10.2.94.21S
   private final LimeLight limeLightFront = new LimeLight("limelight-front", log);
-  private final PhotonVision photon = new PhotonVision();
+  private final PhotonVision photon = new PhotonVision(log);
   // private final LimeLight limeLightRear = new LimeLight("limelight-rear", log);
 
   // Define final utilities
