@@ -42,37 +42,37 @@ public class DriveToTargetWithPhoton extends CommandBase {
     double range;
     double targetRange = 1;
 
-    var result = vision.getLatestResult();
+    // var result = vision.getLatestResult();
 
-    if (result.hasTargets()) {
-      // First calculate range
-      range = PhotonUtils.calculateDistanceToTargetMeters(
-          PhotonVision.CAMERA_HEIGHT_METERS,
-          PhotonVision.TARGET_HEIGHT_METERS,
-          PhotonVision.CAMERA_PITCH_RADIANS,
-          Units.degreesToRadians(result.getBestTarget().getPitch()));
+    // if (result.hasTargets()) {
+    //   // First calculate range
+    //   range = PhotonUtils.calculateDistanceToTargetMeters(
+    //       PhotonVision.CAMERA_HEIGHT_METERS,
+    //       PhotonVision.TARGET_HEIGHT_METERS,
+    //       PhotonVision.CAMERA_PITCH_RADIANS,
+    //       Units.degreesToRadians(result.getBestTarget().getPitch()));
 
-      // Use this range as the measurement we give to the PID controller.
-      // -1.0 required to ensure positive PID controller effort _increases_ range
-      forwardSpeed = -forwardController.calculate(range, targetRange);
+    //   // Use this range as the measurement we give to the PID controller.
+    //   // -1.0 required to ensure positive PID controller effort _increases_ range
+    //   forwardSpeed = -forwardController.calculate(range, targetRange);
 
-      // Also calculate angular power
-      // -1.0 required to ensure positive PID controller effort _increases_ yaw
-      rotationSpeed = -turnController.calculate(result.getBestTarget().getYaw(), 0);
-    } else {
-      // If we have no targets, stay still.
-      forwardSpeed = 0;
-      rotationSpeed = 0;
-      range = 0;
-    }
+    //   // Also calculate angular power
+    //   // -1.0 required to ensure positive PID controller effort _increases_ yaw
+    //   rotationSpeed = -turnController.calculate(result.getBestTarget().getYaw(), 0);
+    // } else {
+    //   // If we have no targets, stay still.
+    //   forwardSpeed = 0;
+    //   rotationSpeed = 0;
+    //   range = 0;
+    // }
 
     // post to smart dashboard periodically
-    SmartDashboard.putNumber("Photon-targetRange", targetRange);
-    SmartDashboard.putNumber("Photon-range", range);
-    SmartDashboard.putNumber("Photon-forwardSpeed", forwardSpeed);
-    SmartDashboard.putNumber("Photon-rotationSpeed", rotationSpeed);
+    // SmartDashboard.putNumber("Photon-targetRange", targetRange);
+    // SmartDashboard.putNumber("Photon-range", range);
+    // SmartDashboard.putNumber("Photon-forwardSpeed", forwardSpeed);
+    // SmartDashboard.putNumber("Photon-rotationSpeed", rotationSpeed);
 
-    driveTrain.arcadeDrive(forwardSpeed, rotationSpeed);
+    // driveTrain.arcadeDrive(forwardSpeed, rotationSpeed);
 
   }
 

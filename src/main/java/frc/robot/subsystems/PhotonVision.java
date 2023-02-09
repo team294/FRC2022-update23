@@ -16,6 +16,7 @@ import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.DifferentialDriveOdometry;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.FieldConstants;
 import frc.robot.Constants.VisionConstants;
@@ -31,7 +32,7 @@ public class PhotonVision extends SubsystemBase implements Loggable {
   // Angle between horizontal and the camera.
   public static final double CAMERA_PITCH_RADIANS = Units.degreesToRadians(0);
 
-  private PhotonCamera camera = new PhotonCamera("photonvision");
+  private PhotonCamera camera = new PhotonCamera(VisionConstants.rightCameraName);
   private PhotonPoseEstimator photonPoseEstimator;
   private FileLog log = null;
 
@@ -39,7 +40,7 @@ public class PhotonVision extends SubsystemBase implements Loggable {
   private final AprilTag tag03 = new AprilTag(3, new Pose3d( new Pose2d(0,Units.feetToMeters(5.42), Rotation2d.fromDegrees(180))));
   private final AprilTag tag01 = new AprilTag(01,new Pose3d(new Pose2d(0.0, 0, Rotation2d.fromDegrees(0.0))));
   private final ArrayList<AprilTag> atList = new ArrayList<AprilTag>();
-  private final DifferentialDriveOdometry odometry = null;
+  private final DifferentialDriveOdometry odometry = new DifferentialDriveOdometry(Rotation2d.fromDegrees(0), 0, 0);
 
   public PhotonVision(FileLog log) {
     this.log = log;
@@ -51,11 +52,6 @@ public class PhotonVision extends SubsystemBase implements Loggable {
     // Create pose estimator
     photonPoseEstimator=new PhotonPoseEstimator(atfl,PoseStrategy.CLOSEST_TO_REFERENCE_POSE,camera,VisionConstants.robotToCam);
   }
-
-  public PhotonPipelineResult getLatestResult() {
-    return camera.getLatestResult();
-  }
-
 
   /**
    * @param estimatedRobotPose The current best guess at robot pose
@@ -73,7 +69,7 @@ public class PhotonVision extends SubsystemBase implements Loggable {
         "Pose Y", pose.get().estimatedPose.getY(),
         "Pose Z", pose.get().estimatedPose.getZ());
     } else {
-      log.writeLog(false, "Photon", "Pose", "null");
+      log.writeLog(false, "Photon", "EstimatedPose", "null");
     }
     
     return pose;
@@ -86,7 +82,43 @@ public class PhotonVision extends SubsystemBase implements Loggable {
 
   @Override
   public void periodic() {
-    var newpose = getEstimatedGlobalPose(odometry.getPoseMeters());
+
+    try {
+      var latest = camera.getLatestResult();
+      
+
+      if (latest != null) {
+        var target = latest.getBestTarget();
+        if (target != null) {
+          log.writeLogEcho(false, "Photon",
+          "Area", target.getArea(),
+          "Pitch", target.getPitch(),
+          "Pose Z", target.getSkew(),
+          "Yaw", target.getYaw());
+          SmartDashboard.putNumber("Photon Area", target.getArea());
+          SmartDashboard.putNumber("Photon Pitch", target.getPitch());
+          SmartDashboard.putNumber("Photon Skew", target.getSkew());
+          SmartDashboard.putNumber("Photon Yaw", target.getYaw());
+        } else {
+          log.writeLog(false, "Photon", "No target");
+        }
+      } else {
+        log.writeLog(false, "Photon", "No result");
+      }
+   } catch (Exception e) {
+    log.writeLogEcho(false, "Photon","error",e.getMessage());
+   }
+    
+    // if (latest.isPresent()) {
+    //   log.writeLog(false, "Photon",
+    //   "Periodic Pose X", newpose.get().estimatedPose.getX(),
+    //   "Pose Y", newpose.get().estimatedPose.getY(),
+    //   "Pose Z", newpose.get().estimatedPose.getZ());
+    // } else {
+    //   log.writeLog(false, "Photon", "No newpose");  
+    // }
+    
+
   }
 
   public void initialize() {
