@@ -1,11 +1,14 @@
 package frc.robot.subsystems;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 import org.photonvision.PhotonCamera;
 import org.photonvision.PhotonPoseEstimator;
+import org.photonvision.PhotonUtils;
 import org.photonvision.targeting.PhotonPipelineResult;
+import org.photonvision.targeting.PhotonTrackedTarget;
 import org.photonvision.EstimatedRobotPose;
 import org.photonvision.PhotonPoseEstimator.PoseStrategy;
 
@@ -42,6 +45,9 @@ public class PhotonVision extends SubsystemBase implements Loggable {
   private final ArrayList<AprilTag> atList = new ArrayList<AprilTag>();
   private final DifferentialDriveOdometry odometry = new DifferentialDriveOdometry(Rotation2d.fromDegrees(0), 0, 0);
 
+  private List<PhotonTrackedTarget> targets = null;
+  private int cycle = 0;
+
   public PhotonVision(FileLog log) {
     this.log = log;
     atList.add(tag03);
@@ -64,7 +70,7 @@ public class PhotonVision extends SubsystemBase implements Loggable {
     photonPoseEstimator.setReferencePose(prevEstimatedRobotPose);
     Optional<EstimatedRobotPose> pose = photonPoseEstimator.update();
     if (pose.isPresent()) {
-      log.writeLog(false, "Photon",
+      log.writeLog(false, "Photon","EstimatedPose",
         "Pose X", pose.get().estimatedPose.getX(),
         "Pose Y", pose.get().estimatedPose.getY(),
         "Pose Z", pose.get().estimatedPose.getZ());
@@ -80,34 +86,72 @@ public class PhotonVision extends SubsystemBase implements Loggable {
     // ignore for now
   }
 
+  
+
   @Override
   public void periodic() {
 
-    try {
-      var latest = camera.getLatestResult();
-      
+    // only update vision every 5 cycles
+    if (cycle % 5 == 0) {
+      updateVision();
+    }
 
-      if (latest != null) {
-        var target = latest.getBestTarget();
-        if (target != null) {
-          log.writeLogEcho(false, "Photon",
-          "Area", target.getArea(),
-          "Pitch", target.getPitch(),
-          "Pose Z", target.getSkew(),
-          "Yaw", target.getYaw());
-          SmartDashboard.putNumber("Photon Area", target.getArea());
-          SmartDashboard.putNumber("Photon Pitch", target.getPitch());
-          SmartDashboard.putNumber("Photon Skew", target.getSkew());
-          SmartDashboard.putNumber("Photon Yaw", target.getYaw());
+    cycle++;
+  }
+
+  public void updateVision() {
+
+    try {
+      var result = camera.getLatestResult();
+
+      if (result != null && result.hasTargets()) {
+        targets = result.getTargets();
+        if (targets == null || targets.size() < 1) {
+          log.writeLogEcho(false, "Photon", "updateVision", "Targets", 0);
         } else {
-          log.writeLog(false, "Photon", "No target");
+          log.writeLogEcho(false, "Photon", "updateVision", "Targets", targets.size());
+
+          for (var target:targets) {
+            log.writeLogEcho(false, "Photon", "updateVision",
+              "tagId",target.getFiducialId(),
+              "Area", target.getArea(),
+              "Yaw", target.getYaw(),
+              "Pitch", target.getPitch(),
+              "Skew", target.getSkew(),
+              "Ambiguity",target.getPoseAmbiguity());
+
+            //SmartDashboard.putNumber("Photon Area", target.getArea());
+            SmartDashboard.putNumber("Photon Pitch", target.getPitch());
+            //SmartDashboard.putNumber("Photon Skew", target.getSkew());
+            SmartDashboard.putNumber("Photon Yaw", target.getYaw());
+
+            // First calculate range
+            double range = PhotonUtils.calculateDistanceToTargetMeters(
+              CAMERA_HEIGHT_METERS,
+              TARGET_HEIGHT_METERS,
+              CAMERA_PITCH_RADIANS,
+              Units.degreesToRadians(result.getBestTarget().getPitch()));  
+
+            log.writeLogEcho(false, "Photon", "updateVision", "Range", range);
+            
+            // double distanceToTarget = PhotonUtils.getDistanceToPose(robotPose, targetPose);
+              
+            // Calculate robot's field relative pose
+            // Pose2D robotPose = PhotonUtils.estimateFieldToRobot(
+            //   kCameraHeight, kTargetHeight, kCameraPitch, kTargetPitch, Rotation2d.fromDegrees(-target.getYaw()), gyro.getRotation2d(), targetPose, cameraToRobot);
+
+            // Calculate robot's field relative pose
+            // Pose3D robotPose = PhotonUtils.estimateFieldToRobotAprilTag(target.getBestCameraToTarget(), aprilTagFieldLayout.getTagPose(target.getFiducialId()), cameraToRobot);
+
+          }
         }
       } else {
-        log.writeLog(false, "Photon", "No result");
+        log.writeLog(false, "Photon", "updateVision", "No result");
+        targets = null;
       }
-   } catch (Exception e) {
-    log.writeLogEcho(false, "Photon","error",e.getMessage());
-   }
+    } catch (Exception e) {
+      log.writeLogEcho(false, "Photon","updateVision", "error",e.getMessage());
+    }
     
     // if (latest.isPresent()) {
     //   log.writeLog(false, "Photon",
@@ -119,6 +163,10 @@ public class PhotonVision extends SubsystemBase implements Loggable {
     // }
     
 
+  }
+
+  public List<PhotonTrackedTarget> getTargets() {
+    return targets;
   }
 
   public void initialize() {

@@ -220,7 +220,7 @@ public class RobotContainer {
     SmartDashboard.putData("Drive Trajectory Curve Relative", new DriveFollowTrajectory(CoordType.kRelative, StopType.kBrake, trajectoryCache.cache[TrajectoryType.testCurve.value], false, PIDType.kTalon, driveTrain, log));
     SmartDashboard.putData("Drive Trajectory Absolute", new DriveFollowTrajectory(CoordType.kAbsolute, StopType.kBrake, trajectoryCache.cache[TrajectoryType.test.value], driveTrain, log));  
 
-    SmartDashboard.putData("Photon DriveToTarget", new DriveToTargetWithPhoton(driveTrain, photon, log));
+    SmartDashboard.putData("Drive ToTargetWithPhoton", new DriveToTargetWithPhoton(driveTrain, photon, log));
   }
 
   /**
