@@ -35,6 +35,7 @@ public class PhotonVision extends SubsystemBase {
 
   public static enum CameraName {CENTER_CAMERA, LEFT_CAMERA};
   private PhotonCamera[] cameraArray = new PhotonCamera[CameraName.values().length];
+
   private PhotonPipelineResult[] resultArray = new PhotonPipelineResult[CameraName.values().length];
 
   // private PhotonPoseEstimator photonPoseEstimator;
@@ -51,6 +52,9 @@ public class PhotonVision extends SubsystemBase {
 
   public PhotonVision(FileLog log) {
     this.log = log;
+
+    cameraArray[CameraName.CENTER_CAMERA.ordinal()] = new PhotonCamera("CenterCamera");
+    cameraArray[CameraName.LEFT_CAMERA.ordinal()] = new PhotonCamera("LeftCamera");
 
     // atList.add(tag03);
     // atList.add(tag01);
@@ -81,6 +85,7 @@ public class PhotonVision extends SubsystemBase {
 
   private void updateVision(CameraName cameraName) {
     var cameraIndex = cameraName.ordinal();
+    // log.writeLogEcho(false, "Photon", "updateVision","cameraName",cameraName, "cameraIndex", cameraIndex);
     resultArray[cameraIndex] = cameraArray[cameraIndex].getLatestResult();
 
     if (resultArray[cameraIndex] != null && resultArray[cameraIndex].hasTargets()) {
