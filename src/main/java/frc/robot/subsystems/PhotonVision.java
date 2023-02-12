@@ -32,7 +32,10 @@ public class PhotonVision extends SubsystemBase {
   public static final double CAMERA_HEIGHT_METERS = Units.inchesToMeters(33);
   public static final double TARGET_HEIGHT_METERS = Units.inchesToMeters(24.38); // 24.38in to bottom of april tag
   public static final double CAMERA_PITCH_RADIANS = Units.degreesToRadians(0);
-  private PhotonCamera camera = new PhotonCamera("CenterCamera");
+
+  public static enum CameraName {CENTER_CAMERA, LEFT_CAMERA};
+  private PhotonCamera[] cameraArray = new PhotonCamera[CameraName.values().length];
+  private PhotonPipelineResult[] resultArray = new PhotonPipelineResult[CameraName.values().length];
 
   // private PhotonPoseEstimator photonPoseEstimator;
   private FileLog log = null;
@@ -44,7 +47,7 @@ public class PhotonVision extends SubsystemBase {
   // private final ArrayList<AprilTag> atList = new ArrayList<AprilTag>();
   // private final DifferentialDriveOdometry odometry = new DifferentialDriveOdometry(Rotation2d.fromDegrees(0), 0, 0);
 
-  private List<PhotonTrackedTarget> targets = null;
+  
 
   public PhotonVision(FileLog log) {
     this.log = log;
@@ -65,9 +68,10 @@ public class PhotonVision extends SubsystemBase {
 
     try {
       var current = System.currentTimeMillis();
-      if (current - lastUpdate >= 100) {
+      if ((current - lastUpdate) >= 100) {
         lastUpdate = current;
-        updateVision();
+        updateVision(PhotonVision.CameraName.LEFT_CAMERA);
+        updateVision(PhotonVision.CameraName.CENTER_CAMERA);
       }
     } catch (Exception e) {
       log.writeLogEcho(false, "Photon","periodic", "error",e.getMessage());
@@ -75,38 +79,33 @@ public class PhotonVision extends SubsystemBase {
 
   }
 
-  private void updateVision() {
-    var result = camera.getLatestResult();
+  private void updateVision(CameraName cameraName) {
+    var cameraIndex = cameraName.ordinal();
+    resultArray[cameraIndex] = cameraArray[cameraIndex].getLatestResult();
 
-    if (result != null && result.hasTargets()) {
-      targets = result.getTargets();
-      if (targets == null || targets.size() < 1) {
+    if (resultArray[cameraIndex] != null && resultArray[cameraIndex].hasTargets()) {
+      if (resultArray[cameraIndex].targets == null || resultArray[cameraIndex].targets.size() < 1) {
         log.writeLog(false, "Photon", "updateVision", "Targets", 0);
         SmartDashboard.putNumber("Photon Targets", 0);
       } else {
-        log.writeLog(false, "Photon", "updateVision", "Targets", targets.size());
-        SmartDashboard.putNumber("Photon Targets", targets.size());
+        log.writeLog(false, "Photon", "updateVision", "Targets", resultArray[cameraIndex].targets.size());
+        SmartDashboard.putNumber("Photon Targets", resultArray[cameraIndex].targets.size());
 
-        for (var target:targets) {
-
-          //SmartDashboard.putNumber("Photon Area", target.getArea());
-          // SmartDashboard.putNumber("Photon Pitch", target.getPitch());
-          //SmartDashboard.putNumber("Photon Skew", target.getSkew());
-          // SmartDashboard.putNumber("Photon Yaw", target.getYaw());
+        for (var target:resultArray[cameraIndex].targets) {
 
           // First calculate range
           double range = PhotonUtils.calculateDistanceToTargetMeters(
             CAMERA_HEIGHT_METERS,
             TARGET_HEIGHT_METERS,
             CAMERA_PITCH_RADIANS,
-            Units.degreesToRadians(result.getBestTarget().getPitch()));  
+            Units.degreesToRadians(target.getPitch()));  
 
           log.writeLog(false, "Photon", "updateVision",
             "tagId",target.getFiducialId(),
-            "Range", range,
-            "Area", target.getArea(),
             "Yaw", target.getYaw(),
+            "Range", range,
             "Pitch", target.getPitch(),
+            "Area", target.getArea(),
             "Skew", target.getSkew(),
             "Ambiguity",target.getPoseAmbiguity());
           
@@ -123,7 +122,6 @@ public class PhotonVision extends SubsystemBase {
       }
     } else {
       //log.writeLog(false, "Photon", "updateVision", "No result");
-      targets = null;
     }
 
     
@@ -139,8 +137,8 @@ public class PhotonVision extends SubsystemBase {
 
   }
 
-  public List<PhotonTrackedTarget> getTargets() {
-    return targets;
+  public List<PhotonTrackedTarget> getTargets(CameraName cameraName) {
+    return resultArray[cameraName.ordinal()].targets;
   }
 
 

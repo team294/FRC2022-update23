@@ -3,6 +3,7 @@ package frc.robot.commands;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.subsystems.DriveTrain;
 import frc.robot.subsystems.PhotonVision;
+import frc.robot.subsystems.PhotonVision.CameraName;
 import frc.robot.utilities.FileLog;
 
 import java.util.List;
@@ -28,6 +29,7 @@ public class DriveToTargetWithPhoton extends CommandBase {
   private PIDController turnController = new PIDController(ANGULAR_P, 0, ANGULAR_D);
 
   private double range = -1;
+  private double yaw = 360;
 
   /**
    * Creates a new DriveWithJoystick to control two motors.
@@ -48,22 +50,18 @@ public class DriveToTargetWithPhoton extends CommandBase {
   @Override
   public void execute() {
 
-    double forwardSpeed;
-    double rotationSpeed;
+    double forwardPct = 0;
+    double rotationPct = 0;
 
-    List<PhotonTrackedTarget> targets = vision.getTargets();
+    List<PhotonTrackedTarget> targets = vision.getTargets(CameraName.CENTER_CAMERA);
 
     if (targets != null && targets.size() > 0) {
 
       var target = targets.get(0);
 
-      // prioritize key targets on the end
+      // prioritize key targets in the middle
       for (var t:targets) {
-        if (t.getFiducialId() == 1 
-          || t.getFiducialId() == 3
-          || t.getFiducialId() == 6
-          || t.getFiducialId() == 8) 
-        {
+        if (t.getFiducialId() == 2 || t.getFiducialId() == 7) {
           target = t;
           break;
         }
@@ -82,22 +80,23 @@ public class DriveToTargetWithPhoton extends CommandBase {
 
       // Use this range as the measurement we give to the PID controller.
       // -1.0 required to ensure positive PID controller effort _increases_ range
-      forwardSpeed = -forwardController.calculate(range, 0);
+      // forwardSpeed = -forwardController.calculate(range, 1);
 
       // Also calculate angular power
       // -1.0 required to ensure positive PID controller effort _increases_ yaw
-      rotationSpeed = -turnController.calculate(target.getYaw(), 0);
+      yaw = target.getYaw();
+      rotationPct = -turnController.calculate(yaw, 0);
 
     } else {
       // If we have no targets, stop and exit
-      forwardSpeed = 0;
-      rotationSpeed = 0;
+      forwardPct = 0;
+      rotationPct = 0;
       range = 0;
     }  
     
-    log.writeLog(false, "Photon", "DriveToTargetWithVision", "forwardSpeed", forwardSpeed, "rotationSpeed", rotationSpeed);
+    log.writeLog(false, "Photon", "DriveToTargetWithVision", "forwardPct", forwardPct, "rotationPct", rotationPct);
 
-    // driveTrain.arcadeDrive(forwardSpeed, rotationSpeed);
+    driveTrain.arcadeDrive(forwardPct, rotationPct);
 
   }
 
@@ -110,7 +109,12 @@ public class DriveToTargetWithPhoton extends CommandBase {
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
-    return range == 0;
+    boolean done = false;
+    if (Math.abs(yaw) < 3) {
+      done = true;
+      log.writeLog(false, "Photon", "DriveToTargetWithVision", "finished yaw", yaw);
+    }
+    return done;
   }
 
 }
