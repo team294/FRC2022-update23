@@ -24,13 +24,20 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.DifferentialDriveOdometry;
 import edu.wpi.first.math.kinematics.DifferentialDriveWheelSpeeds;
+import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.math.estimator.DifferentialDrivePoseEstimator;
 import frc.robot.utilities.*;
 import static frc.robot.Constants.Ports.*;
 import static frc.robot.Constants.RobotConstants.*;
+
+import java.util.Optional;
+
+import org.photonvision.EstimatedRobotPose;
+
 import static frc.robot.Constants.DriveConstants.*;
 
 public class DriveTrain extends SubsystemBase {
@@ -50,6 +57,10 @@ public class DriveTrain extends SubsystemBase {
 
   private FileLog log;
   private TemperatureCheck tempCheck;
+
+  private PhotonCameraWrapper camera = new PhotonCameraWrapper();
+  private DifferentialDrivePoseEstimator poseEstimator; 
+  private Field2d field = new Field2d();    // Field to dispaly on Shuffleboard
   
   // variables to help calculate angular velocity for turnGyro
   private double prevAng; // last recorded gyro angle
@@ -137,8 +148,14 @@ public class DriveTrain extends SubsystemBase {
     zeroRightEncoder();
     zeroGyroRotation();
 
+    
+
     // Sets initial position to (0,0) facing 0 degrees
     odometry = new DifferentialDriveOdometry(Rotation2d.fromDegrees(getGyroRotation()), 0, 0);
+
+    poseEstimator = new DifferentialDrivePoseEstimator(kDriveKinematics, Rotation2d.fromDegrees(getGyroRotation()), 
+       0,0, new Pose2d(0, 0, Rotation2d.fromDegrees(0)) );
+
 
     // initialize angular velocity variables
     prevAng = getGyroRaw();
@@ -590,9 +607,12 @@ public class DriveTrain extends SubsystemBase {
 
     // Update robot odometry
     double degrees = getGyroRotation();
-    double leftMeters = Units.inchesToMeters(getLeftEncoderInches());
-    double rightMeters = Units.inchesToMeters(getRightEncoderInches());
-    odometry.update(Rotation2d.fromDegrees(degrees), leftMeters, rightMeters);
+    // double leftMeters = Units.inchesToMeters(getLeftEncoderInches());
+    // double rightMeters = Units.inchesToMeters(getRightEncoderInches());
+    //odometry.update(Rotation2d.fromDegrees(degrees), leftMeters, rightMeters);
+
+    // update 
+    updateOdometry();
 
     // save current angle and time for calculating angVel
     currAng = getGyroRaw();
@@ -739,4 +759,29 @@ public class DriveTrain extends SubsystemBase {
     if (rightMotor2.getTemperature() < temperatureCheck)
       tempCheck.notOverheatingMotor("DriveRight2");
   }
+
+  public void updateOdometry() {
+    poseEstimator.update(Rotation2d.fromDegrees(getGyroRotation()), Units.inchesToMeters(getLeftEncoderInches()), Units.inchesToMeters(getRightEncoderInches()));
+
+    Optional<EstimatedRobotPose> result = camera.getEstimatedGlobalPose(poseEstimator.getEstimatedPosition());
+
+    if (result.isPresent()) {
+        EstimatedRobotPose camPose = result.get();
+        poseEstimator.addVisionMeasurement(camPose.estimatedPose.toPose2d(), camPose.timestampSeconds);
+        field.getObject("Cam Est Pos").setPose(camPose.estimatedPose.toPose2d());
+
+        Pose2d pose = camPose.estimatedPose.toPose2d();
+
+        SmartDashboard.putNumber("Drive Pose X", pose.getTranslation().getX());
+        SmartDashboard.putNumber("Drive Pose Y", pose.getTranslation().getY());
+        SmartDashboard.putNumber("Drive Pose Theta", pose.getRotation().getDegrees());
+    } else {
+        // move it way off the screen to make it disappear
+        field.getObject("Cam Est Pos").setPose(new Pose2d(-100, -100, new Rotation2d()));
+    }
+
+    field.setRobotPose(poseEstimator.getEstimatedPosition());
+    SmartDashboard.putNumber("Field X", field.getRobotPose().getX());
+    SmartDashboard.putNumber("Field Y", field.getRobotPose().getY());
+  } 
 }

@@ -9,7 +9,9 @@ package frc.robot;
 
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform3d;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Translation3d;
+import edu.wpi.first.math.kinematics.DifferentialDriveKinematics;
 import edu.wpi.first.math.util.Units;
 
 /**
@@ -297,6 +299,14 @@ public final class Constants {
 
         public static double TRACK_WIDTH = 0.80;   // in meters, for Trajectories (not physical track width).  Calibrated 3/21/2022 = 0.80 (was 0.71 last year)
 
+        // The locations of the wheels relative to the physical center of the robot, in meters.
+        // X: + = forward.  Y: + = to the left
+        // The order in which you pass in the wheel locations is the same order that
+        // you will receive the module states when performing inverse kinematics. It is also expected that
+        // you pass in the module states in the same order when calling the forward kinematics methods.
+        // 0 = FrontLeft, 1 = FrontRight, 2 = BackLeft, 3 = BackRight
+        public static final DifferentialDriveKinematics kDriveKinematics = new DifferentialDriveKinematics(TRACK_WIDTH);
+
         // *******************************
         // The constants below are DEFAULT VALUES. Change these value in RobotPrefrences
         // for each robot, not in this code!
@@ -315,15 +325,21 @@ public final class Constants {
     }
 
     public static class VisionConstants {
+        // TODO
         public static final Transform3d robotToCam =
                 new Transform3d(
                         new Translation3d(0.0, 0.0, 0.0),
-                        new Rotation3d( 0, 0, 0)); // Cam mounted facing forward in center of robot
+                        new Rotation3d(
+                                0, 0,
+                                0)); // Cam mounted facing forward in center of robot
                 // new Transform3d(
                 //         new Translation3d(0.5, 0.0, 0.5),
-                //         new Rotation3d(0, 0, 0));    // Cam mounted facing forward, half a meter forward of center, half a meter up
-                                                        // from center.
+                //         new Rotation3d(
+                //                 0, 0,
+                //                 0)); // Cam mounted facing forward, half a meter forward of center, half a meter up
+        // from center.
+        public static final String cameraName = "CenterCamera";
         public static final double targetSideLength = Units.inchesToMeters(6);
-    }    
+    }
 
 }
