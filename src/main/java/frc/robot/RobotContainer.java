@@ -53,9 +53,10 @@ public class RobotContainer {
   private final PowerDistribution powerdistribution = new PowerDistribution(Ports.CANPowerDistHub, ModuleType.kRev);
   private final Compressor compressor = new Compressor(PneumaticsModuleType.REVPH);
   private final AllianceSelection allianceSelection = new AllianceSelection(log);
+  private final Field field = new Field(allianceSelection, log);
 
   // Define robot subsystems  
-  private final DriveTrain driveTrain = new DriveTrain(log, tempCheck);
+  private final DriveTrain driveTrain = new DriveTrain(field, log, tempCheck);
   private final Shooter shooter = new Shooter(log);
   private final Feeder feeder = new Feeder("Feeder", log);
   private final Uptake uptake = new Uptake("Uptake", allianceSelection, log);

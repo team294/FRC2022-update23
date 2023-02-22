@@ -34,9 +34,10 @@ import frc.robot.utilities.*;
 import static frc.robot.Constants.Ports.*;
 import static frc.robot.Constants.RobotConstants.*;
 
-import java.util.Optional;
-
+// Vision imports
+import frc.robot.subsystems.PhotonCameraWrapper;
 import org.photonvision.EstimatedRobotPose;
+import java.util.Optional;
 
 import static frc.robot.Constants.DriveConstants.*;
 
@@ -47,7 +48,7 @@ public class DriveTrain extends SubsystemBase {
   private final WPI_TalonFX rightMotor2;
 
   private final DifferentialDrive diffDrive;
-  private final DifferentialDriveOdometry odometry;
+  //private final DifferentialDriveOdometry odometry;
 
   private double leftEncoderZero = 0;
   private double rightEncoderZero = 0;
@@ -58,7 +59,8 @@ public class DriveTrain extends SubsystemBase {
   private FileLog log;
   private TemperatureCheck tempCheck;
 
-  private PhotonCameraWrapper camera = new PhotonCameraWrapper();
+  // variable to store vision camera
+  private PhotonCameraWrapper camera;
   private DifferentialDrivePoseEstimator poseEstimator; 
   private Field2d field = new Field2d();    // Field to dispaly on Shuffleboard
   
@@ -70,8 +72,9 @@ public class DriveTrain extends SubsystemBase {
   private double angularVelocity;  // Robot angular velocity in degrees per second
   private LinearFilter lfRunningAvg = LinearFilter.movingAverage(4); //calculate running average to smooth quantization error in angular velocity calc
   
-  public DriveTrain(FileLog log, TemperatureCheck tempCheck) {
+  public DriveTrain(Field fieldUtil, FileLog log, TemperatureCheck tempCheck) {
     this.log = log; // save reference to the fileLog
+    this.camera = new PhotonCameraWrapper(fieldUtil);
     this.tempCheck = tempCheck;
 
     // configure navX
@@ -151,7 +154,7 @@ public class DriveTrain extends SubsystemBase {
     
 
     // Sets initial position to (0,0) facing 0 degrees
-    odometry = new DifferentialDriveOdometry(Rotation2d.fromDegrees(getGyroRotation()), 0, 0);
+    //odometry = new DifferentialDriveOdometry(Rotation2d.fromDegrees(getGyroRotation()), 0, 0);
 
     poseEstimator = new DifferentialDrivePoseEstimator(kDriveKinematics, Rotation2d.fromDegrees(getGyroRotation()), 
        0,0, new Pose2d(0, 0, Rotation2d.fromDegrees(0)) );
@@ -661,7 +664,7 @@ public class DriveTrain extends SubsystemBase {
       SmartDashboard.putNumber("Drive Pitch", ahrs.getRoll());
       
       // position from odometry (helpful for autos)
-      var translation = odometry.getPoseMeters().getTranslation();
+      var translation =  poseEstimator.getEstimatedPosition().getTranslation();;
       SmartDashboard.putNumber("Drive Odometry X",translation.getX());
       SmartDashboard.putNumber("Drive Odometry Y",translation.getY());
 
@@ -683,7 +686,7 @@ public class DriveTrain extends SubsystemBase {
    * @return current robot pose
    */
   public Pose2d getPose() {
-    return odometry.getPoseMeters();
+    return poseEstimator.getEstimatedPosition();
   }
 
   /**
@@ -699,7 +702,7 @@ public class DriveTrain extends SubsystemBase {
     zeroLeftEncoder();
     zeroRightEncoder();
     zeroGyroRotation(robotPoseInMeters.getRotation().getDegrees());
-    odometry.resetPosition(Rotation2d.fromDegrees(getGyroRotation()), 0, 0, robotPoseInMeters);
+    poseEstimator.resetPosition(Rotation2d.fromDegrees(getGyroRotation()), 0, 0, robotPoseInMeters);
   }
 
   /**
@@ -714,7 +717,7 @@ public class DriveTrain extends SubsystemBase {
    * @param logWhenDisabled true will log when disabled, false will discard the string
    */
   public void updateDriveLog(boolean logWhenDisabled) {
-    var translation = odometry.getPoseMeters().getTranslation();
+    var translation = poseEstimator.getEstimatedPosition().getTranslation();
     log.writeLog(logWhenDisabled, "Drive", "Update Variables", 
       "L1 Volts", leftMotor1.getMotorOutputVoltage(), "L2 Volts", leftMotor2.getMotorOutputVoltage(),
       "L1 Amps", leftMotor1.getSupplyCurrent(), "L2 Amps", leftMotor2.getSupplyCurrent(),
@@ -761,27 +764,21 @@ public class DriveTrain extends SubsystemBase {
   }
 
   public void updateOdometry() {
-    poseEstimator.update(Rotation2d.fromDegrees(getGyroRotation()), Units.inchesToMeters(getLeftEncoderInches()), Units.inchesToMeters(getRightEncoderInches()));
+    poseEstimator.update(Rotation2d.fromDegrees(getGyroRotation()),  Units.inchesToMeters(getLeftEncoderInches()), Units.inchesToMeters(getRightEncoderInches()));
 
     Optional<EstimatedRobotPose> result = camera.getEstimatedGlobalPose(poseEstimator.getEstimatedPosition());
 
     if (result.isPresent()) {
         EstimatedRobotPose camPose = result.get();
-        poseEstimator.addVisionMeasurement(camPose.estimatedPose.toPose2d(), camPose.timestampSeconds);
-        field.getObject("Cam Est Pos").setPose(camPose.estimatedPose.toPose2d());
+        // only updates odometry if close enough 
+        // TODO change how it decides if it's too far
+        if (camPose.estimatedPose.getX() < 3.3) {
+          poseEstimator.addVisionMeasurement(camPose.estimatedPose.toPose2d(), camPose.timestampSeconds);
 
-        Pose2d pose = camPose.estimatedPose.toPose2d();
-
-        SmartDashboard.putNumber("Drive Pose X", pose.getTranslation().getX());
-        SmartDashboard.putNumber("Drive Pose Y", pose.getTranslation().getY());
-        SmartDashboard.putNumber("Drive Pose Theta", pose.getRotation().getDegrees());
-    } else {
-        // move it way off the screen to make it disappear
-        field.getObject("Cam Est Pos").setPose(new Pose2d(-100, -100, new Rotation2d()));
+          // field.setRobotPose(camPose.estimatedPose.toPose2d());
+        }
     }
-
+    
     field.setRobotPose(poseEstimator.getEstimatedPosition());
-    SmartDashboard.putNumber("Field X", field.getRobotPose().getX());
-    SmartDashboard.putNumber("Field Y", field.getRobotPose().getY());
-  } 
+  }    
 }
