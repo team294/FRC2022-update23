@@ -421,6 +421,10 @@ public class DriveTrain extends SubsystemBase {
     return -ahrs.getAngle();
   }
 
+  public double getGyroPitch() {
+    return ahrs.getPitch();
+  }  
+
   /**
 	 * Zero the gyro position in software to the current angle.
 	 */
