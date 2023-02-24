@@ -74,7 +74,7 @@ public class DriveTrain extends SubsystemBase {
   
   public DriveTrain(Field fieldUtil, FileLog log, TemperatureCheck tempCheck) {
     this.log = log; // save reference to the fileLog
-    this.camera = new PhotonCameraWrapper(fieldUtil);
+    this.camera = new PhotonCameraWrapper(fieldUtil, log);
     this.tempCheck = tempCheck;
 
     // configure navX
@@ -785,4 +785,8 @@ public class DriveTrain extends SubsystemBase {
     
     field.setRobotPose(poseEstimator.getEstimatedPosition());
   }    
+
+  public void cameraInit() {
+    camera.init();
+  }
 }
