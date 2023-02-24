@@ -282,8 +282,10 @@ public class Field {
 
         
         if(alliance.getAlliance() == Alliance.Blue) {
+            log.writeLogEcho(true, "Field", "getAprilTagFieldLayout", "Loaded", "blue");
             atList = Arrays.asList(AprilTagsBlue);
         } else {
+            log.writeLogEcho(true, "Field", "getAprilTagFieldLayout", "Loaded", "red");
             atList = Arrays.asList(AprilTagsRed);
         }
 

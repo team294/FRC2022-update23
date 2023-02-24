@@ -470,6 +470,8 @@ public class RobotContainer {
 
     driveTrain.setDriveModeCoast(false);
 
+    driveTrain.cameraInit();
+
     // NOTE:  Do NOT reset the gyro or encoder here!!!!!
     // The first command in auto mode initializes before this code is run, and
     // it will read the gyro/encoder before the reset goes into effect.
@@ -489,6 +491,7 @@ public class RobotContainer {
 
     pivisionhub.setLEDState(true);
     driveTrain.setDriveModeCoast(false);
+    driveTrain.cameraInit();
 
     // wait until teleop to set trigger as it interferes with autos
     configureSensorTriggers();
