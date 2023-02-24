@@ -23,10 +23,10 @@ public AutoBalance(double waitTime, DriveTrain driveTrain, FileLog log) {
       new DriveZeroGyro(0, driveTrain, log),  
 
       // drive backwards over charging station
-      new DriveStraight(-2.0, TargetType.kRelative, 0.0, 2.61, 3.8, true, driveTrain, null, log).withTimeout(5),
+      // new DriveStraight(-2.0, TargetType.kRelative, 0.0, 2.61, 3.8, true, driveTrain, null, log).withTimeout(5),
 
       // drive forwards and stop when balanced
-      new Balance(2.0, TargetType.kRelative, 0.0, 2.61, 3.8, true, driveTrain, null, log).withTimeout(5),
+      new Balance(4.0, TargetType.kRelative, 0.0, 2.61, 3.8, true, driveTrain, null, log),
 
       new FileLogWrite(false, false, "AutoBalance", "end", log)
 

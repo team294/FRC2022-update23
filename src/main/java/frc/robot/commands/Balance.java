@@ -39,6 +39,7 @@ public class Balance extends CommandBase {
   private FileLog log;
 
   private boolean pitchedUp = false;
+  private boolean pitchedDown = false;
 
   private int accuracyCounter = 0;
 
@@ -163,6 +164,7 @@ public class Balance extends CommandBase {
     driveTrain.setDriveModeCoast(false);
 
     pitchedUp = false;
+    pitchedDown = false;
   }
 
   // Called every time the scheduler runs while the command is scheduled.
@@ -196,6 +198,22 @@ public class Balance extends CommandBase {
     double aFFL = (kSLinear * Math.signum(targetVelL)) + (targetVelL * kVLinear) + (targetAccel * kALinear);
     double aFFR = (kSLinear * Math.signum(targetVelR)) + (targetVelR * kVLinear) + (targetAccel * kALinear);
 
+    // look at pitch to determine if we have balanced
+    var pitch = driveTrain.getGyroPitch();
+    if (pitch > 10) {
+      pitchedUp = true;
+    }
+
+    if (pitch < -10) {
+      pitchedDown = true;
+    }
+
+    // stop after we start pitching down
+    if (pitchedUp && pitchedDown) {
+      targetVelL = 0;
+      targetVelR = 0;
+    }
+
     // For calibrating:  driving with feedforward only
     // driveTrain.setOpenLoopRampLimit(false);
     // driveTrain.setLeftMotorOutput(aFFL);
@@ -205,10 +223,6 @@ public class Balance extends CommandBase {
     driveTrain.setLeftTalonPIDVelocity(Units.metersToInches(targetVelL), aFFL);
     driveTrain.setRightTalonPIDVelocity(Units.metersToInches(targetVelR), aFFR, true);
 
-    var pitch = driveTrain.getGyroPitch();
-    if (!pitchedUp && pitch > 10) {
-      pitchedUp = true;
-    }
 
     log.writeLog(false, "Balance", "profile", 
       "pitch", pitch,
@@ -242,12 +256,6 @@ public class Balance extends CommandBase {
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
-    var pitch = driveTrain.getGyroPitch();
-    if (pitchedUp && Math.abs(pitch) < 2.0) {
-      log.writeLog(false, "DriveStraight", "Balance", "Pitch down", pitch );
-      return true;
-    }
-    
     if(Math.abs(target - currDist) < 0.0125) {
       accuracyCounter++;
       log.writeLog(false, "DriveStraight", "WithinTolerance", "Target Dist", target, "Actual Dist", currDist, "Counter", accuracyCounter);
