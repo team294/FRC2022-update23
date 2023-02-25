@@ -26,7 +26,7 @@ public AutoBalance(double waitTime, DriveTrain driveTrain, FileLog log) {
       // new DriveStraight(-2.0, TargetType.kRelative, 0.0, 2.61, 3.8, true, driveTrain, null, log).withTimeout(5),
 
       // drive forwards and stop when balanced
-      new Balance(4.0, TargetType.kRelative, 0.0, 2.61, 3.8, true, driveTrain, null, log),
+      new Balance(4.0, TargetType.kRelative, 0.0, 0.5, 3.8, true, driveTrain, null, log).withTimeout(10),
 
       new FileLogWrite(false, false, "AutoBalance", "end", log)
 

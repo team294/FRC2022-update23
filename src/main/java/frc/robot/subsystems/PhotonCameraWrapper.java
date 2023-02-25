@@ -44,6 +44,7 @@ public class PhotonCameraWrapper {
   private AprilTagFieldLayout aprilTagFieldLayout;
   private Field field;
   private FileLog log;
+  private boolean hasInit = false;
 
   public PhotonCameraWrapper(Field field, FileLog log) {
     this.log = log;
@@ -79,7 +80,13 @@ public class PhotonCameraWrapper {
         photonCamera,
         VisionConstants.robotToCam);
 
+    hasInit = true;
+
     log.writeLogEcho(true, "PhotonCameraWrapper", "Init", "Done");
+  }
+
+  public boolean hasInit() {
+    return hasInit;
   }
 
   /**
@@ -90,12 +97,12 @@ public class PhotonCameraWrapper {
    *         firmly on the ground
    */
   public Optional<EstimatedRobotPose> getEstimatedGlobalPose(Pose2d prevEstimatedRobotPose) {
-    log.writeLogEcho(true, "PhotonCameraWrapper", "getEstimatedGlobalPose", "PreviousPose", "X",prevEstimatedRobotPose.getX(),"Y",prevEstimatedRobotPose.getY());
     photonPoseEstimator.setReferencePose(prevEstimatedRobotPose);
     var newPoseOptional = photonPoseEstimator.update();
     if (newPoseOptional.isPresent()) {
+      log.writeLog(true, "PhotonCameraWrapper", "getEstimatedGlobalPose", "PreviousPose", "X",prevEstimatedRobotPose.getX(),"Y",prevEstimatedRobotPose.getY());
       EstimatedRobotPose newPose = newPoseOptional.get();
-      log.writeLogEcho(true, "PhotonCameraWrapper", "getEstimatedGlobalPose", "NewPose", "X",newPose.estimatedPose.getX(),"Y",newPose.estimatedPose.getY());
+      log.writeLog(true, "PhotonCameraWrapper", "getEstimatedGlobalPose", "NewPose", "X",newPose.estimatedPose.getX(),"Y",newPose.estimatedPose.getY());
     }
     return newPoseOptional;
   }

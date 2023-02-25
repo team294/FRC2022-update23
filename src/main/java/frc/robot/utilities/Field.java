@@ -138,28 +138,28 @@ public class Field {
     // #4 -> 7 = blue(close) side, left to right (from driver point of view)
     // #3 and 4 are loading zone tags
     private final AprilTag[] AprilTagsBlue = {
-        new AprilTag(1, new Pose3d(new Pose2d(15.51356, 1.071626, new Rotation2d(0)))),
-        new AprilTag(2, new Pose3d(new Pose2d(15.51356, 2.748026, new Rotation2d(0)))),
-        new AprilTag(3, new Pose3d(new Pose2d(15.51356, 4.424426, new Rotation2d(0)))),
-        new AprilTag(4, new Pose3d(new Pose2d(16.17878, 6.749796, new Rotation2d(0)))),
-        new AprilTag(5, new Pose3d(new Pose2d(0.36195, 6.749796, new Rotation2d(Math.PI)))),
-        new AprilTag(6, new Pose3d(new Pose2d(1.02743, 4.424426, new Rotation2d(Math.PI)))),
-        new AprilTag(7, new Pose3d(new Pose2d(1.02743, 2.748026, new Rotation2d(Math.PI)))),
-        new AprilTag(8, new Pose3d(new Pose2d(1.02743, 1.071626, new Rotation2d(Math.PI))))
+        new AprilTag(1, new Pose3d(new Pose2d(15.51356, 1.071626, new Rotation2d(Math.PI)))),
+        new AprilTag(2, new Pose3d(new Pose2d(15.51356, 2.748026, new Rotation2d(Math.PI)))),
+        new AprilTag(3, new Pose3d(new Pose2d(15.51356, 4.424426, new Rotation2d(Math.PI)))),
+        new AprilTag(4, new Pose3d(new Pose2d(16.17878, 6.749796, new Rotation2d(Math.PI)))),
+        new AprilTag(5, new Pose3d(new Pose2d(0.36195, 6.749796, new Rotation2d(0)))),
+        new AprilTag(6, new Pose3d(new Pose2d(1.02743, 4.424426, new Rotation2d(0)))),
+        new AprilTag(7, new Pose3d(new Pose2d(1.02743, 2.748026, new Rotation2d(0)))),
+        new AprilTag(8, new Pose3d(new Pose2d(1.02743, 1.071626, new Rotation2d(0))))
     };
     
     // #0 -> 3 = red(close) side, left to right (from driver point of view)
     // #4 -> 7 = blue(far) side, right to left (from driver point of view)
     // #3 and 4 are loading zone tags
     private final AprilTag[] AprilTagsRed = {
-        new AprilTag(1, new Pose3d(new Pose2d(1.02743, 6.932168, new Rotation2d(Math.PI)))),
-        new AprilTag(2, new Pose3d(new Pose2d(1.02743, 5.255768, new Rotation2d(Math.PI)))),
-        new AprilTag(3, new Pose3d(new Pose2d(1.02743, 3.579368, new Rotation2d(Math.PI)))),
-        new AprilTag(4, new Pose3d(new Pose2d(0.36195, 1.253998, new Rotation2d(Math.PI)))),
-        new AprilTag(5, new Pose3d(new Pose2d(16.17878, 1.253998, new Rotation2d(0)))),
-        new AprilTag(6, new Pose3d(new Pose2d(15.51356, 3.579368, new Rotation2d(0)))),
-        new AprilTag(7, new Pose3d(new Pose2d(15.51356, 5.255768, new Rotation2d(0)))),
-        new AprilTag(8, new Pose3d(new Pose2d(15.51356, 6.932168, new Rotation2d(0))))
+        new AprilTag(1, new Pose3d(new Pose2d(1.02743, 6.932168, new Rotation2d(0)))),
+        new AprilTag(2, new Pose3d(new Pose2d(1.02743, 5.255768, new Rotation2d(0)))),
+        new AprilTag(3, new Pose3d(new Pose2d(1.02743, 3.579368, new Rotation2d(0)))),
+        new AprilTag(4, new Pose3d(new Pose2d(0.36195, 1.253998, new Rotation2d(0)))),
+        new AprilTag(5, new Pose3d(new Pose2d(16.17878, 1.253998, new Rotation2d(Math.PI)))),
+        new AprilTag(6, new Pose3d(new Pose2d(15.51356, 3.579368, new Rotation2d(Math.PI)))),
+        new AprilTag(7, new Pose3d(new Pose2d(15.51356, 5.255768, new Rotation2d(Math.PI)))),
+        new AprilTag(8, new Pose3d(new Pose2d(15.51356, 6.932168, new Rotation2d(Math.PI))))
     };
 
     private final AllianceSelection alliance;

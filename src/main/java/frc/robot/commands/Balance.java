@@ -38,8 +38,10 @@ public class Balance extends CommandBase {
   private double angleInput, angleTarget;   // angleTarget is an absolute gyro angle
   private FileLog log;
 
-  private boolean pitchedUp = false;
-  private boolean pitchedDown = false;
+  private boolean up = false;
+  private boolean down = false;
+  private float max = 0;
+  private float roll = 0;
 
   private int accuracyCounter = 0;
 
@@ -163,8 +165,10 @@ public class Balance extends CommandBase {
     driveTrain.resetTalonPIDs();
     driveTrain.setDriveModeCoast(false);
 
-    pitchedUp = false;
-    pitchedDown = false;
+    up = false;
+    down = false;
+    roll = 0;
+    max = 0;
   }
 
   // Called every time the scheduler runs while the command is scheduled.
@@ -199,22 +203,23 @@ public class Balance extends CommandBase {
     double aFFR = (kSLinear * Math.signum(targetVelR)) + (targetVelR * kVLinear) + (targetAccel * kALinear);
 
     // look at pitch to determine if we have balanced
-    var pitch = driveTrain.getGyroPitch();
-    if (pitch > 10) {
-      pitchedUp = true;
+    roll = driveTrain.getGyroRoll();
+
+    if (roll > max) {
+      max = roll;
     }
 
-    if (pitch < -10) {
-      pitchedDown = true;
+    if (!up && roll > 12) {
+      up = true;
+      log.writeLog(false, "Balance", "Execute", "Up",roll);
     }
 
-    // stop after we start pitching down
-    if (pitchedUp && pitchedDown) {
-      targetVelL = 0;
-      targetVelR = 0;
+    if (up && !down && roll < 12) {
+      down = true;
+      log.writeLog(false, "Balance", "Execute", "Down",roll);
     }
 
-    // For calibrating:  driving with feedforward only
+   // For calibrating:  driving with feedforward only
     // driveTrain.setOpenLoopRampLimit(false);
     // driveTrain.setLeftMotorOutput(aFFL);
     // driveTrain.setRightMotorOutput(aFFR);
@@ -225,7 +230,7 @@ public class Balance extends CommandBase {
 
 
     log.writeLog(false, "Balance", "profile", 
-      "pitch", pitch,
+      "roll", roll,
       "angT", angleTarget, "angA", curAngle,
       "posT", tStateNext.position, 
       "velLT", targetVelL, "velRT", targetVelR, "accT", targetAccel,
@@ -248,14 +253,22 @@ public class Balance extends CommandBase {
   // Called once the command ends or is interrupted.
   @Override
   public void end(boolean interrupted) {
-    log.writeLog(false, "DriveStraight", "End");
+    log.writeLog(false, "Balance", "End","Interrupted",interrupted);
     driveTrain.setLeftMotorOutput(0);
     driveTrain.setRightMotorOutput(0);
+    driveTrain.setDriveModeCoast(false);
   }
 
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
+    
+    if (up && roll < (max - 3.0)) {
+    //if (up && down) {
+      log.writeLog(false, "Balance", "isFinished", "Roll", roll, "Max", max, "Up",up, "Down", down);
+      return true;
+    }    
+
     if(Math.abs(target - currDist) < 0.0125) {
       accuracyCounter++;
       log.writeLog(false, "DriveStraight", "WithinTolerance", "Target Dist", target, "Actual Dist", currDist, "Counter", accuracyCounter);

@@ -328,9 +328,9 @@ public final class Constants {
         // TODO
         public static final Transform3d robotToCam =
                 new Transform3d(
-                        new Translation3d(0.0, 0.0, 0.0),
+                        new Translation3d(0.43, 0.1, 0.77),
                         new Rotation3d(
-                                0, 0,
+                                0, Units.degreesToRadians(0),
                                 0)); // Cam mounted facing forward in center of robot
                 // new Transform3d(
                 //         new Translation3d(0.5, 0.0, 0.5),
