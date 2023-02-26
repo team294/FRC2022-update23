@@ -17,11 +17,13 @@ import com.ctre.phoenix.motorcontrol.can.WPI_TalonFX;
 import com.kauailabs.navx.frc.AHRS;
 
 import edu.wpi.first.wpilibj.SerialPort;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.math.filter.LinearFilter;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.kinematics.DifferentialDriveOdometry;
 import edu.wpi.first.math.kinematics.DifferentialDriveWheelSpeeds;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
@@ -34,6 +36,7 @@ import frc.robot.utilities.*;
 import static frc.robot.Constants.Ports.*;
 import static frc.robot.Constants.RobotConstants.*;
 
+import frc.robot.Constants.FieldConstants;
 // Vision imports
 import frc.robot.subsystems.PhotonCameraWrapper;
 import org.photonvision.EstimatedRobotPose;
@@ -802,7 +805,14 @@ public class DriveTrain extends SubsystemBase {
 
     }
 
-    field.setRobotPose(poseEstimator.getEstimatedPosition());
+    if (camera.getAlliance() == Alliance.Red) {
+      Pose2d currPose = poseEstimator.getEstimatedPosition();
+      double x = FieldConstants.length - currPose.getX();
+      double y = FieldConstants.width - currPose.getY();
+      Rotation2d rot = currPose.getRotation().rotateBy(Rotation2d.fromDegrees(180));
+
+      field.setRobotPose(new Pose2d(x, y, rot));
+    } else field.setRobotPose(poseEstimator.getEstimatedPosition());
   }
 
   public void cameraInit() {

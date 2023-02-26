@@ -277,9 +277,12 @@ public class Field {
         }
     }
 
+    /**
+     * gets the game's AprilTagFieldLayout for vision
+     * @return AprilTagFieldLayout for vision
+     */
     public AprilTagFieldLayout getAprilTagFieldLayout() {
         List<AprilTag> atList;
-
         
         if(alliance.getAlliance() == Alliance.Blue) {
             log.writeLogEcho(true, "Field", "getAprilTagFieldLayout", "Loaded", "blue");
@@ -289,9 +292,15 @@ public class Field {
             atList = Arrays.asList(AprilTagsRed);
         }
 
-        
-
         return new AprilTagFieldLayout(atList, FieldConstants.length, FieldConstants.width);
+    }
+
+    /**
+     * gets alliance
+     * @return Alliance current selected alliance color
+     */
+    public Alliance getAlliance() {
+        return alliance.getAlliance();
     }
 
     /**

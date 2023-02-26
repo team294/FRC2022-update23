@@ -103,7 +103,6 @@ public class AutoSelection {
 
 		if (autoPlan == BALANCE) {
 			log.writeLogEcho(true, "AutoSelect", "run AutoBalance");
-			autonomousCommand = new AutoBalance(waitTime, driveTrain, log);
 		}		
 
 		if (autonomousCommand == null) {
