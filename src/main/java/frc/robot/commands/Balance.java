@@ -107,17 +107,17 @@ public class Balance extends CommandBase {
     // Use addRequirements() here to declare subsystem dependencies.
     addRequirements(driveTrain);
 
-    if(SmartDashboard.getNumber("DriveStraight Manual Target Dist", -9999) == -9999) {
-      SmartDashboard.putNumber("DriveStraight Manual Target Dist", 2);
+    if(SmartDashboard.getNumber("Balance Manual Target Dist", -9999) == -9999) {
+      SmartDashboard.putNumber("Balance Manual Target Dist", 2);
     }
-    if(SmartDashboard.getNumber("DriveStraight Manual Angle", -9999) == -9999) {
-      SmartDashboard.putNumber("DriveStraight Manual Angle", 0);
+    if(SmartDashboard.getNumber("Balance Manual Angle", -9999) == -9999) {
+      SmartDashboard.putNumber("Balance Manual Angle", 0);
     }
-    if(SmartDashboard.getNumber("DriveStraight Manual MaxVel", -9999) == -9999) {
-      SmartDashboard.putNumber("DriveStraight Manual MaxVel", kMaxSpeedMetersPerSecond);
+    if(SmartDashboard.getNumber("Balance Manual MaxVel", -9999) == -9999) {
+      SmartDashboard.putNumber("Balance Manual MaxVel", kMaxSpeedMetersPerSecond);
     }
-    if(SmartDashboard.getNumber("DriveStraight Manual MaxAccel", -9999) == -9999) {
-      SmartDashboard.putNumber("DriveStraight Manual MaxAccel", kMaxAccelerationMetersPerSecondSquared);
+    if(SmartDashboard.getNumber("Balance Manual MaxAccel", -9999) == -9999) {
+      SmartDashboard.putNumber("Balance Manual MaxAccel", kMaxAccelerationMetersPerSecondSquared);
     }
   }
 
@@ -125,11 +125,11 @@ public class Balance extends CommandBase {
   @Override
   public void initialize() {
     if(fromShuffleboard) {
-      target = SmartDashboard.getNumber("DriveStraight Manual Target Dist", 2);
-      angleInput = SmartDashboard.getNumber("DriveStraight Manual Angle", 0);
-      maxVel = SmartDashboard.getNumber("DriveStraight Manual MaxVel", kMaxSpeedMetersPerSecond);
+      target = SmartDashboard.getNumber("Balance Manual Target Dist", 2);
+      angleInput = SmartDashboard.getNumber("Balance Manual Angle", 0);
+      maxVel = SmartDashboard.getNumber("Balance Manual MaxVel", kMaxSpeedMetersPerSecond);
       maxVel = MathUtil.clamp(Math.abs(maxVel), 0, DriveConstants.kMaxSpeedMetersPerSecond);
-      maxAccel = SmartDashboard.getNumber("DriveStraight Manual MaxAccel", kMaxAccelerationMetersPerSecondSquared);
+      maxAccel = SmartDashboard.getNumber("Balance Manual MaxAccel", kMaxAccelerationMetersPerSecondSquared);
       maxAccel = MathUtil.clamp(Math.abs(maxAccel), 0, DriveConstants.kMaxAccelerationMetersPerSecondSquared);
     }
 
@@ -155,7 +155,7 @@ public class Balance extends CommandBase {
     tStateCurr = new TrapezoidProfileBCR.State(0.0, 0.0); // initialize initial state (relative turning, so assume initPos is 0 degrees)
     tConstraints = new TrapezoidProfileBCR.Constraints(maxVel, maxAccel); // initialize velocity and accel limits
     tProfile = new TrapezoidProfileBCR(tConstraints, tStateFinal, tStateCurr); // generate profile
-    log.writeLog(false, "DriveStraight", "init", "Target", target, "Profile total time", tProfile.totalTime());
+    log.writeLog(false, "Balance", "init", "Target", target, "Profile total time", tProfile.totalTime());
     
     profileStartTime = System.currentTimeMillis(); // save starting time of profile
     startDistLeft = Units.inchesToMeters(driveTrain.getLeftEncoderInches());
@@ -271,7 +271,7 @@ public class Balance extends CommandBase {
 
     if(Math.abs(target - currDist) < 0.0125) {
       accuracyCounter++;
-      log.writeLog(false, "DriveStraight", "WithinTolerance", "Target Dist", target, "Actual Dist", currDist, "Counter", accuracyCounter);
+      log.writeLog(false, "Balance", "WithinTolerance", "Target Dist", target, "Actual Dist", currDist, "Counter", accuracyCounter);
     } else {
       accuracyCounter = 0;
     }
