@@ -792,7 +792,7 @@ public class DriveTrain extends SubsystemBase {
         //if (camPose.estimatedPose.getX() < 3.3) {
           poseEstimator.addVisionMeasurement(camPose.estimatedPose.toPose2d(), camPose.timestampSeconds);
 
-          field.getObject("Vision").setPose(camPose.estimatedPose.toPose2d());
+          //field.getObject("Vision").setPose(camPose.estimatedPose.toPose2d());
           SmartDashboard.putNumber("Vision X", camPose.estimatedPose.toPose2d().getX());
           SmartDashboard.putNumber("Vision Y", camPose.estimatedPose.toPose2d().getY());
           SmartDashboard.putNumber("Vision rot", camPose.estimatedPose.toPose2d().getRotation().getDegrees());
