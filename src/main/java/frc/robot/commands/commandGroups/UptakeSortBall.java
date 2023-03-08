@@ -5,6 +5,7 @@ import edu.wpi.first.wpilibj2.command.ConditionalCommand;
 import edu.wpi.first.wpilibj2.command.ScheduleCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
+import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.Constants.BallColor;
 import frc.robot.Constants.UptakeConstants;
 import frc.robot.commands.*;
@@ -26,7 +27,7 @@ public class UptakeSortBall extends SequentialCommandGroup {
    * @param xboxController XBox controller to use for rumbling
    * @param log logger
    */
-  public UptakeSortBall(Intake intake, Uptake uptake, Feeder feeder, Joystick xboxController, FileLog log) {
+  public UptakeSortBall(Intake intake, Uptake uptake, Feeder feeder, /*CommandXboxController xboxController,*/ FileLog log) {
 
     addCommands(
       new FileLogWrite(true, false, "UptakeSortBall", "start sequence", log),
@@ -46,14 +47,14 @@ public class UptakeSortBall extends SequentialCommandGroup {
           // if there is nothing in the feeder then feed it
           parallel(
             new FileLogWrite(true, false, "UptakeSortBall", "send to feeder", log),
-            new XboxRumble(0.5, 0.25, 1, xboxController, log),    // Notify drive that the robot has one ball
+            // new XboxRumble(0.5, 0.25, 1, xboxController, log),    // Notify drive that the robot has one ball
             new UptakeFeedBall(uptake, feeder, log).withTimeout(1)
             //new UptakeToFeeder(uptake, feeder, log).withTimeout(1)
           ),
           // if there is something in the feeder, turn off the uptake and hold the 2nd ball in the uptake and close intake
           parallel(
             new FileLogWrite(true, false, "UptakeSortBall", "hold in uptake", log),
-            new XboxRumble(0.5, 0.25, 2, xboxController, log),    // Notify drive that the robot has one ball
+            // new XboxRumble(0.5, 0.25, 2, xboxController, log),    // Notify drive that the robot has one ball
             // this logic has moved to the end of command group to allow sensors to stabilize
             //new UptakeStop(uptake, log)
 
