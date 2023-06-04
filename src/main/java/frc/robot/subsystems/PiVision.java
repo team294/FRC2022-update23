@@ -27,12 +27,12 @@ public class PiVision extends SubsystemBase implements Loggable {
   public PiVision(String name, FileLog log) {
     this.log = log;
     this.name = name;
-    table = tableInstance.getTable(name);
+    table = tableInstance.getTable("photonvision").getSubTable("Microsoft_LifeCam_HD-3000");
 
-    rw = table.getEntry("rw");
-    rx = table.getEntry("rx");
+    rw = table.getEntry("targetPixelsX");
+    rx = table.getEntry("targetPixelsX");
     // ry = table.getEntry("ry");
-    rv = table.getEntry("rv");
+    rv = table.getEntry("targetPixelsX");
   }
 
   /**

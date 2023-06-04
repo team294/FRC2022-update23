@@ -171,7 +171,7 @@ public class Uptake extends SubsystemBase implements Loggable {
   }
 
   /**
-   * sets the percent of the uptake, using voltage compensation if turned on
+   * sets the percent of the eject motor, using voltage compensation if turned on
    * @param percent -1.0 to 1.0, + = eject ball, - = send ball to feeder
    */
   public void setEjectPercentOutput(double percent){
