@@ -17,6 +17,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.Command.InterruptionBehavior;
+import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 
@@ -74,7 +75,7 @@ public class RobotContainer {
 
   // Define controllers
   // private final Joystick xboxController = new Joystick(OIConstants.usbXboxController); //assuming usbxboxcontroller is int
-  private final Joystick xboxController = new Joystick(OIConstants.usbXboxController); //assuming usbxboxcontroller is int
+  private final CommandXboxController xboxController = new CommandXboxController(OIConstants.usbXboxController);
   // private final XboxController xbC = new XboxController(OIConstants.usbXboxController); //assuming usbxboxcontroller is int
   private final Joystick leftJoystick = new Joystick(OIConstants.usbLeftJoystick);
   private final Joystick rightJoystick = new Joystick(OIConstants.usbRightJoystick);
@@ -102,7 +103,7 @@ public class RobotContainer {
     
       Trigger colorSensorTrigger = new Trigger(() -> uptake.isBallAtColorSensor() && DriverStation.isTeleop());
       // colorSensorTrigger.whenActive(new UptakeSortBall(intakeFront, uptake, feeder, xboxController, log), false);
-      colorSensorTrigger.onTrue(new UptakeSortBall(intakeFront, uptake, feeder, xboxController, log));
+      colorSensorTrigger.onTrue(new UptakeSortBall(intakeFront, uptake, feeder, /*xboxController,*/ log));
 
       // Trigger ejectSensorTrigger = new Trigger(() -> uptake.isBallInEjector());
       // ejectSensorTrigger.whenActive(new UptakeEjectTrigger(uptake, log));
@@ -131,8 +132,8 @@ public class RobotContainer {
     tempCheck.displayOverheatingMotors();
 
     // XBox rumble
-    SmartDashboard.putData("XBox Rumble 1", new XboxRumble(0.5, 0.25, 1, xboxController, log));
-    SmartDashboard.putData("XBox Rumble 2", new XboxRumble(0.5, 0.25, 2, xboxController, log));
+    // SmartDashboard.putData("XBox Rumble 1", new XboxRumble(0.5, 0.25, 1, xboxController, log));
+    // SmartDashboard.putData("XBox Rumble 2", new XboxRumble(0.5, 0.25, 2, xboxController, log));
 
     // Intake subsystem
     SmartDashboard.putData("Intake Front Fwd", new IntakeSetPercentOutput(0.2, 0.2, intakeFront, log));
@@ -239,15 +240,29 @@ public class RobotContainer {
    * Configures XBox buttons and controls
    */
   private void configureXboxButtons(){
-    JoystickButton[] xb = new JoystickButton[11];
+    // JoystickButton[] xb = new JoystickButton[11];
     //check povtrigger and axis trigger number bindings
-    Trigger xbPOVUp = new POVTrigger(xboxController, 0);
-    Trigger xbPOVRight = new POVTrigger(xboxController, 90);
-    //Trigger xbPOVDown = new POVTrigger(xboxController, 180);
-    Trigger xbPOVLeft = new POVTrigger(xboxController, 270);
+    Trigger xbLT = xboxController.leftTrigger();
+    Trigger xbRT = xboxController.rightTrigger();
+    Trigger xbA = xboxController.a();
+    Trigger xbB = xboxController.b();
+    Trigger xbY = xboxController.y();
+    Trigger xbX = xboxController.x();
+    Trigger xbLB = xboxController.leftBumper();
+    Trigger xbRB = xboxController.rightBumper();
+    Trigger xbBack = xboxController.back();
+    Trigger xbStart = xboxController.start();
+    Trigger xbPOVUp = xboxController.povUp();
+    Trigger xbPOVRight = xboxController.povRight();
+    Trigger xbPOVLeft = xboxController.povLeft();
+    Trigger xbPOVDown = xboxController.povDown();
+    // Trigger xbPOVUp = new POVTrigger(xboxController, 0);
+    // Trigger xbPOVRight = new POVTrigger(xboxController, 90);
+    // //Trigger xbPOVDown = new POVTrigger(xboxController, 180);
+    // Trigger xbPOVLeft = new POVTrigger(xboxController, 270);
     
-    Trigger xbLT = new AxisTrigger(xboxController, 2, 0.9);
-    Trigger xbRT = new AxisTrigger(xboxController, 3, 0.9);
+    // Trigger xbLT = new AxisTrigger(xboxController, 2, 0.9);
+    // Trigger xbRT = new AxisTrigger(xboxController, 3, 0.9);
     
     // right trigger shoots ball
     xbRT.onTrue(new ShootSequence(uptake, feeder, shooter, log).withInterruptBehavior(InterruptionBehavior.kCancelIncoming));
@@ -268,35 +283,37 @@ public class RobotContainer {
     // ));
     xbLT.onFalse(new TurretStop(turret, log));
 
-    for (int i = 1; i < xb.length; i++) {
-      xb[i] = new JoystickButton(xboxController, i);
-    }
+    // for (int i = 1; i < xb.length; i++) {
+    //   xb[i] = new JoystickButton(xboxController, i);
+    // }
     
     //a - short shot distance
-    xb[1].whileTrue(new ShootSetup(false, 3100, pivisionhub, shooter, log));         
+    xbA.onTrue(new ShootSetup(false, 3100, pivisionhub, shooter, log));
+    // xb[1].whileTrue(new ShootSetup(false, 3100, pivisionhub, shooter, log));         
     // xb[1].whenReleased(new ShooterSetVelocity(InputMode.kSpeedRPM, ShooterConstants.shooterDefaultRPM, shooter, log));
     
     //b - medium shot distance
-    xb[2].whileTrue(new ShootSetup(false, 3400, pivisionhub, shooter, log));        
+    // xb[2].whileTrue(new ShootSetup(false, 3400, pivisionhub, shooter, log));        
+    xbB.onTrue(new ShootSetup(false, 3400, pivisionhub, shooter, log));        
     // xb[2].whenReleased(new ShooterSetVelocity(InputMode.kSpeedRPM, ShooterConstants.shooterDefaultRPM, shooter, log));
 
     //y - long shot distance
-    xb[4].whileTrue(new ShootSetup(false, 4100, pivisionhub, shooter, log));        
+    xbY.onTrue(new ShootSetup(false, 4100, pivisionhub, shooter, log));        
     // xb[4].whenReleased(new ShooterSetVelocity(InputMode.kSpeedRPM, ShooterConstants.shooterDefaultRPM, shooter, log));
     
     //x - shot speed using vision
-    xb[3].whileTrue(new ShootSetup(true, 3100, pivisionhub, shooter, log));        
+    xbX.onTrue(new ShootSetup(true, 3100, pivisionhub, shooter, log));        
     
     // LB = 5, RB = 6
-    xb[5].onTrue(new TurretSetPercentOutput(-0.1, turret, log));
-    xb[5].onFalse(new TurretStop(turret, log));
-    xb[6].onTrue(new TurretSetPercentOutput(+0.1, turret, log));
-    xb[6].onFalse(new TurretStop(turret, log));
+    xbLB.onTrue(new TurretSetPercentOutput(-0.1, turret, log));
+    xbLB.onFalse(new TurretStop(turret, log));
+    xbRB.onTrue(new TurretSetPercentOutput(+0.1, turret, log));
+    xbRB.onFalse(new TurretStop(turret, log));
 
     // back = 7, start = 8 
-    xb[7].whileTrue(new ShootSetup(false, 500, pivisionhub, shooter, log));   // micro shot for use in the pit
+    xbBack.whileTrue(new ShootSetup(false, 500, pivisionhub, shooter, log));   // micro shot for use in the pit
     // xb[7].whenHeld(new ClimberSetExtended(true,climber, log)); 
-    xb[8].whileTrue(new ClimberSetExtended(false,climber, log)); 
+    xbStart.whileTrue(new ClimberSetExtended(false,climber, log)); 
 
     // pov is the d-pad (up, down, left, right)
     xbPOVUp.onTrue(new TurretTurnAngle(TargetType.kAbsolute, 0, 2, turret, pivisionhub, log));
@@ -393,8 +410,8 @@ public class RobotContainer {
    * @param percentRumble The normalized value (0 to 1) to set the rumble to
    */
 	public void setXBoxRumble(double percentRumble) {
-		xboxController.setRumble(RumbleType.kLeftRumble, percentRumble);
-    xboxController.setRumble(RumbleType.kRightRumble, percentRumble);
+		// xboxController.setRumble(RumbleType.kLeftRumble, percentRumble);
+    // xboxController.setRumble(RumbleType.kRightRumble, percentRumble);
 
     if (percentRumble == 0) rumbling = false;
     else rumbling = true;
