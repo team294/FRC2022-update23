@@ -86,6 +86,8 @@ public class PiVision extends SubsystemBase implements Loggable {
     // } while(networkTableReadCounter<= 5 && (xNew != x || yNew != y));
     } while(networkTableReadCounter<= 5 && (xNew != x || widthNew != width || numberOfTargetsNew != numberOfTargets));
 
+    // Convert X from pixels to an angle
+    x = -(x - 320.0) / 12.0;
   }
 
   @Override
